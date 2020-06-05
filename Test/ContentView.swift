@@ -11,17 +11,21 @@ import SwiftUI
 struct ContentView: View {
     @ObservedObject var viewModel:EmojiMemoryGame
     var body: some View {
-        HStack {
-            ForEach(viewModel.cards) { card in
-                CardView(card: card).onTapGesture {
-                    self.viewModel.chooseCard(card: card)
-                }
-            }
-
-        }.padding()
-            .foregroundColor(.orange)
-            .font(Font.largeTitle)
-        
+//        HStack {
+//            ForEach(viewModel.cards) { card in
+//                CardView(card: card).onTapGesture {
+//                    self.viewModel.chooseCard(card: card)
+//                }
+//            }
+//
+//        }.padding()
+//            .foregroundColor(.orange)
+//            .font(Font.largeTitle)
+        Grid(viewModel.cards)  { card in
+            CardView(card: card).onTapGesture {
+                self.viewModel.chooseCard(card: card)
+                }.padding(5)
+        }
         
     }
 }
@@ -29,19 +33,23 @@ struct CardView:View
 {
     var card:MemoryGame<String>.Card
     var body: some View {
-        ZStack {
-            if card.isFaceUp
-            {
-                RoundedRectangle(cornerRadius: 10.0).stroke().stroke(lineWidth: 2)
-                RoundedRectangle(cornerRadius: 10.0).fill(Color.white)
-                Text(card.content)
-            }
-            else
-            {
-                 RoundedRectangle(cornerRadius: 10.0).fill(Color.orange)
-            }
-           
+        GeometryReader { geometry in
+            ZStack {
+                
+                if self.card.isFaceUp || self.card.isMatched
+                {
+                    RoundedRectangle(cornerRadius: 10.0).stroke().stroke(lineWidth: 2)
+                    RoundedRectangle(cornerRadius: 10.0).fill(Color.white)
+                    Text(self.card.content)
+                }
+                else if !self.card.isMatched
+                {
+                     RoundedRectangle(cornerRadius: 10.0).fill(Color.orange)
+                }
+               
+            }.font(Font.system(size: min(geometry.size.width, geometry.size.height) * 0.75) )
         }
+        
     }
     
 }
