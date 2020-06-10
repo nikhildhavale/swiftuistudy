@@ -21,11 +21,26 @@ struct ContentView: View {
 //        }.padding()
 //            .foregroundColor(.orange)
 //            .font(Font.largeTitle)
-        Grid(viewModel.cards)  { card in
-            CardView(card: card).onTapGesture {
-                self.viewModel.chooseCard(card: card)
-                }.padding(5)
+        VStack
+            {
+                Grid(viewModel.cards)  { card in
+                    CardView(card: card).onTapGesture {
+                        withAnimation(.easeInOut){
+                            self.viewModel.chooseCard(card: card)
+
+                        }
+                        }.padding(5)
+                }
+                Button(action: {
+                    withAnimation(.easeInOut){
+                        self.viewModel.resetGame()
+
+                    }
+                }, label: {
+                    Text("New Game")
+                })
         }
+        
         
     }
 }
@@ -44,7 +59,10 @@ struct CardView:View
         }
         
     }
-    
+//    private func body(for size:CGSize) -> some View
+//    {
+//
+//    }
 }
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
@@ -53,9 +71,22 @@ struct ContentView_Previews: PreviewProvider {
         return ContentView(viewModel: game)
     }
 }
-struct Cardify:ViewModifier
+struct Cardify:AnimatableModifier
 {
+    var rotation:Double
+    init(isFaceUp:Bool,isMatched:Bool) {
+        rotation = isFaceUp ? 180 : 0
+        self.isMatched = isMatched
+    }
     var isFaceUp:Bool
+    {
+        rotation > 90
+    }
+    var animatableData: Double
+    {
+        get{ rotation}
+        set{rotation = newValue}
+    }
     var isMatched:Bool
     func body(content: Content) -> some View {
         ZStack {
@@ -64,15 +95,16 @@ struct Cardify:ViewModifier
             {
                 RoundedRectangle(cornerRadius: 10.0).stroke().stroke(lineWidth: 2)
                 RoundedRectangle(cornerRadius: 10.0).fill(Color.white)
-                content
+                content/*.rotationEffect(Angle.degrees(isMatched ? 180 : 0  ) )*/
             }
             else
             {
-                RoundedRectangle(cornerRadius: 10.0)                .fill(Color.orange)
+                RoundedRectangle(cornerRadius: 10.0)        .fill(Color.orange)
                 
             }
             
-        }
+        }.rotation3DEffect(Angle.degrees(rotation), axis: (0,1,0))
+        .animation(Animation.linear(duration: 3))
         
     }
 }
